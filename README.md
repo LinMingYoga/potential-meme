@@ -1,6 +1,7 @@
 # 面试
 
 ---
+## VUE
 <img src="https://upload-images.jianshu.io/upload_images/1694678-a839a0c606ff4780.png?imageMogr2/auto-orient/strip|imageView2/2/w/554/format/webp" />
 
 1. ### 谈谈你对Vue的理解吧
@@ -165,7 +166,7 @@
 
 
     最小量更新， key 很重要。这个可以是这个节点的唯一标识，告诉 diff 算法，在更改前后它们是同一个DOM节点
-
+    
     扩展 v-for 为什么要有 key ，没有 key 会暴力复用，举例子的话随便说一个比如移动节点或者增加节点（修改DOM），加 key 只会移动减少操作DOM。
 
 
@@ -274,3 +275,71 @@
     **SEO优化**
 
     - 预渲染
+
+---
+
+## 防抖与节流
+
+- ### 防抖
+
+  概念：延迟要执行的东站，若在延时的这段时间内，再次出发了，则取消之前开启的东站，重新计时
+
+  实现：定时器
+
+  应用：搜索时等用户完整输入内容后再发送请求。
+
+  ``` javascript
+  let input = document.getElementById('input')
+  let id
+  input.addEventListener('keyWord', () =>{
+      let data = input.value
+      clearTimer(id)
+      id = setTimeout(() => {
+          // ajax code
+      }, 500)
+  })
+  ```
+
+- ### 节流
+
+  概念：设定一个特定的时间，让函数再特定的时间内只执行一次，不会频繁执行
+
+  实现：定时器、标识
+
+  ``` javascript
+  handleClick() {
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(() => {
+        this.name++
+      }, 1000)
+  }
+  ```
+
+---
+
+## JavaScript
+
+- ### 讲讲JS的数据类型？
+
+  `JS的数据类型有8种`
+
+  1. 在ES5的时候，我们认知的数据类型确实是 6种：`Number`、`String`、`Boolean`、`undefined`、`object`、`Null`。
+  2. ES6 中新增了一种 `Symbol `。这种类型的对象永不相等，即始创建的时候传入相同的值，可以解决属性名冲突的问题，做为标记。
+  3. 谷歌67版本中还出现了一种 `bigInt`。是指安全存储、操作大整数。（但是很多人不把这个做为一个类型）。
+
+  JS数据类型：JS 的数据类型有几种？
+
+     8种。`Number`、`String`、`Boolean`、`Null`、`undefined`、`object`、`symbol`、`bigInt`。
+
+- ### var let const 的区别
+
+  - var 会变量提升 let 和 const 不会
+  - var 在全局命名的变量会挂载到 window 上，let const 不会
+  - let 和 const 有块级作用域（暂时性死区），var 没有
+  - let const 不允许重复命名
+
+- ### 解决跨域问题
+
+  1. JSONP：利用`<script>`标签不受跨域限制的特点，缺点是只能支持 get 请求
+  2. 服务端设置请求头：` CORS: Access-Control-Allow-Origin：*`
+  3. postMessage
