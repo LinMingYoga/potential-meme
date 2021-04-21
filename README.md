@@ -427,3 +427,91 @@
     - 代理（proxy）Set
     - 函数默认参数
     - rest 和展开
+
+---
+
+### git 代码提交格式
+
+|    值    |                             描述                             |
+| :------: | :----------------------------------------------------------: |
+|   feat   |                         新增一个功能                         |
+|   fix    |                         修复一个 Bug                         |
+|   docs   |                           文档变更                           |
+|  style   |       代码格式（不影响功能，例如空格、分号等格式修正）       |
+| refactor |                           代码重构                           |
+|   perf   |                           改善性能                           |
+|   test   |                             测试                             |
+|  build   | 变更项目构建或外部依赖（例如 scopes: webpack、gulp、npm 等） |
+|    ci    | 更改持续集成软件的配置文件和 package 中的 scripts 命令，例如 scopes: Travis, Circle 等 |
+|  chore   |                    变更构建流程或辅助工具                    |
+|  revert  |                           代码回退                           |
+
+---
+
+## Webpack
+
+- 说一下 Webpack 的热更新原理吧
+
+  `Webpack` 的热更新又称热替换（`Hot Module Replacement`），缩写为 `HMR`。 这个机制可以做到不用刷新浏览器而将新变更的模块替换掉旧的模块。
+
+  HMR的核心就是客户端从服务端拉去更新后的文件，准确的说是 chunk diff (chunk 需要更新的部分)，实际上 WDS 与浏览器之间维护了一个 `Websocket`，当本地资源发生变化时，WDS 会向浏览器推送更新，并带上构建时的 hash，让客户端与上一次资源进行对比。客户端对比出差异后会向 WDS 发起 `Ajax` 请求来获取更改内容(文件列表、hash)，这样客户端就可以再借助这些信息继续向 WDS 发起 `jsonp` 请求获取该chunk的增量更新。
+
+  后续的部分(拿到增量更新之后如何处理？哪些状态该保留？哪些又需要更新？)由 `HotModulePlugin` 来完成，提供了相关 API 以供开发者针对自身场景进行处理，像`react-hot-loader` 和 `vue-loader` 都是借助这些 API 实现 HMR。
+
+---
+
+### 页面默认布局是 static
+
+![image-20210421094203392](C:\Users\lm\AppData\Roaming\Typora\typora-user-images\image-20210421094203392.png)
+
+### 3个使用this的典型应用
+
+ 1. 在html原生事件属性中使用，如：
+
+    ``` html
+    <input type=”button” onclick=”showInfo(this);” value=”点击一下”/>
+    ```
+
+	2. 构造函数
+
+    ```javascript
+    function Animal(name, color) {
+    　　this.name = name;
+    　　this.color = color;
+    }
+    ```
+
+	3. input 点击，获取值
+
+    ``` html
+    <input type="button" id="text" value="点击一下" />
+    <script type="text/javascript">
+        var btn = document.getElementById("text");
+        btn.onclick = function() {
+            alert(this.value);    //此处的this是按钮元素
+        }
+    </script>
+    ```
+
+## 什么是回流，什么是重绘，有什么区别？
+
+- ### html 加载时发生了什么
+
+  在页面加载时，浏览器把获取到的HTML代码解析成1个DOM树，DOM树里包含了所有HTML标签，包括display:none隐藏，还有用JS动态添加的元素等。
+   浏览器把所有样式(用户定义的CSS和用户代理)解析成样式结构体
+   DOM Tree 和样式结构体组合后构建render tree, render tree类似于DOM tree，但区别很大，因为render tree能识别样式，render tree中每个NODE都有自己的style，而且render tree不包含隐藏的节点(比如display:none的节点，还有head节点)，因为这些节点不会用于呈现，而且不会影响呈现的，所以就不会包含到 render tree中。我自己简单的理解就是DOM Tree和我们写的CSS结合在一起之后，渲染出了render tree。
+
+- ### 什么是回流
+
+  当render tree中的一部分(或全部)因为元素的规模尺寸，布局，隐藏等改变而需要重新构建。这就称为回流(reflow)。每个页面至少需要一次回流，就是在页面第一次加载的时候，这时候是一定会发生回流的，因为要构建render tree。在回流的时候，浏览器会使渲染树中受到影响的部分失效，并重新构造这部分渲染树，完成回流后，浏览器会重新绘制受影响的部分到屏幕中，该过程成为重绘。
+
+- ### 什么是重绘
+
+  当render tree中的一些元素需要更新属性，而这些属性只是影响元素的外观，风格，而不会影响布局的，比如background-color。则就叫称为重绘。
+
+- ### 区别:
+
+  他们的区别很大：
+   回流必将引起重绘，而重绘不一定会引起回流。比如：只有颜色改变的时候就只会发生重绘而不会引起回流
+   当页面布局和几何属性改变时就需要回流
+   比如：添加或者删除可见的DOM元素，元素位置改变，元素尺寸改变——边距、填充、边框、宽度和高度，内容改变
